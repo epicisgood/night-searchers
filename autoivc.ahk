@@ -23,27 +23,19 @@ DetectLoading(colorToCheck) {
     return color = colorToCheck
 }
 
-UpdatePostData() {
-    global postdata
-    postdata =
-    (
+postdata=
+(
+{
+  "content": "<@%discordID%> VICIOUS BEE DETECTED!!!",
+  "embeds": [
     {
-      "content": "<@%discordID%> VICIOUS BEE DETECTED!!!",
-      "embeds": [
-        {
-          "title": "Vicious bee detected!!",
-          "description": "roblox://userID=%UserID%&joinAttemptOrigin=JoinUser",
-          "color": 8280002
-        }
-      ]
+      "title": "Vicious bee detected!!",
+      "description": "roblox://userID=%UserID%&joinAttemptOrigin=JoinUser",
+      "color": 8280002
     }
-    )
-    StringReplace, postdata, postdata, %UserID%, %UserID%
-    StringReplace, postdata, postdata, %discordID%, %discordID%
+  ]
 }
-
-; Initialize postdata
-UpdatePostData()
+) 
 
 ; Create a GUI to update UserID, URL, and Discord ID
 Gui, Add, Text, x10 y10 w80 h20, Roblox UserID:
@@ -64,7 +56,6 @@ SaveSettings:
     UserID := UserIDEdit
     url := URLEdit
     discordID := DiscordIDEdit
-    UpdatePostData()
     MsgBox, Settings saved!
 return
 
@@ -72,14 +63,13 @@ F1::
     loop {
         DragScroll()
         if CheckForNight(nightColor) {
-            MsgBox, Night Detected! Exiting...
             WebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
             WebRequest.Open("POST", url, false)
             WebRequest.SetRequestHeader("Content-Type", "application/json")
             WebRequest.Send(postdata)
             ExitApp
         } else {
-            Process, Close, RobloxPlayerBeta.exe 
+            RunWait, taskkill /F /IM RobloxPlayerBeta.exe, , Hide
             Run, node "index.js"
         }
 
