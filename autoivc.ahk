@@ -1,23 +1,23 @@
-﻿; Read settings from settings.ini
+﻿#SingleInstance, Force
+SetWorkingDir, %A_ScriptDir%
+CoordMode, Pixel, Screen
+
+
+; Read settings from settings.ini
 IniRead, UserID, settings.ini, Settings, UserID
 IniRead, url, settings.ini, Settings, url
 IniRead, discordID, settings.ini, Settings, discordID
-IniRead, sleepDuration, settings.ini, Settings, sleepDuration
 IniRead, RobloxUsername, settings.ini, Settings, RobloxUsername
 
-CoordMode, Pixel, Screen
 
 nightColor := 0x000000
-loadingColor := 0x2257A8
 webhook_color := 13684834
-
 
 DoubleClick(x, y) {
     MouseClick, left, x, y
     Sleep, 50 ; Adjust sleep duration if needed
     MouseClick, left, x, y
 }
-
 
 DragScroll() {
     MouseClickDrag, middle, 300, 302, 300, 300
@@ -28,26 +28,41 @@ CheckForNight(colorToCheck) {
     return color = colorToCheck
 }
 
-DetectLoading(colorToCheck) {
-    PixelGetColor, color, 458, 151
-    return color = colorToCheck
+DetectLoading(loadingColor) {
+    ; Wait for the loading color to appear
+    loop {
+        PixelGetColor, color, 458, 151, RGB
+        if (color = loadingColor) {
+            break
+        }
+        Sleep, 100
+    }
+
+    ; Wait for the loading color to disappear
+    loop {
+        PixelGetColor, color, 458, 151, RGB
+        if (color != loadingColor) {
+            break
+        }
+        Sleep, 100
+    }
 }
 
-postdata=
+postdata =
 (
 {
-  "content": "<@%discordID%> %RobloxUsername% FOUND A Night time Server !!!",
-  "embeds": [
+    "content": "<@%discordID%> %RobloxUsername% FOUND A Night time Server !!!",
+    "embeds": [
     {
-      "title": "Vicious bee detected!!",
-      "description": "roblox://userID=%UserID%&joinAttemptOrigin=JoinUser \n https://www.roblox.com/users/%UserID%/profile",
-      "color": 8280002
+        "title": "Vicious bee detected!!",
+        "description": "roblox://userID=%UserID%&joinAttemptOrigin=JoinUser \n https://www.roblox.com/users/%UserID%/profile",
+        "color": 8280002
     }
-  ]
+    ]
 }
 ) 
 
-; Create a GUI to update UserID, URL, Discord ID, Roblox Username, and Sleep Duration
+; Create a GUI to update UserID, URL, Discord ID, Roblox Username
 Gui, Add, Text, x10 y10 w80 h20, Roblox UserID:
 Gui, Add, Edit, vUserIDEdit x100 y10 w300 h20, %UserID%
 Gui, Add, Text, x10 y40 w80 h20, Webhook URL:
@@ -56,10 +71,8 @@ Gui, Add, Text, x10 y70 w80 h20, Discord ID:
 Gui, Add, Edit, vDiscordIDEdit x100 y70 w300 h20, %discordID%
 Gui, Add, Text, x10 y100 w80 h20, Roblox Username:
 Gui, Add, Edit, vRobloxUsernameEdit x100 y100 w300 h20, %RobloxUsername%
-Gui, Add, Text, x10 y130 w80 h20, Sleep Duration:
-Gui, Add, Edit, vSleepDurationEdit x100 y130 w300 h20, %sleepDuration%
-Gui, Add, Button, gSaveSettings x100 y160 w100 h30, Save
-Gui, Show, w420 h220, Settings
+Gui, Add, Button, gSaveSettings x100 y130 w100 h30, Save
+Gui, Show, w420 h180, Settings
 return
 
 SaveSettings:
@@ -68,12 +81,10 @@ SaveSettings:
     IniWrite, %URLEdit%, settings.ini, Settings, url
     IniWrite, %DiscordIDEdit%, settings.ini, Settings, discordID
     IniWrite, %RobloxUsernameEdit%, settings.ini, Settings, RobloxUsername
-    IniWrite, %SleepDurationEdit%, settings.ini, Settings, sleepDuration
     UserID := UserIDEdit
     url := URLEdit
     discordID := DiscordIDEdit
     RobloxUsername := RobloxUsernameEdit
-    sleepDuration := SleepDurationEdit
     MsgBox, Settings saved!
 return
 
@@ -81,7 +92,7 @@ F1::
     loop {
         DoubleClick(458, 63)
         DragScroll()
-        if CheckForNight(nightColor) {
+        if CheckForNight(nightColor) or CheckForNight(0x404040) {
             WebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
             WebRequest.Open("POST", url, false)
             WebRequest.SetRequestHeader("Content-Type", "application/json")
@@ -95,7 +106,8 @@ F1::
             RunWait, taskkill /F /IM RobloxPlayerBeta.exe, , Hide
             Run, node "index.js"
         }
-
-        Sleep, %sleepDuration% ; Roblox Player is waiting for the grey screen to go away the "hehehee... screen"
+        ; Call the DetectLoading function
+        DetectLoading(0x2257A8)
+        Sleep, 3000
     }
 return
