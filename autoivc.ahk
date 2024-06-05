@@ -2,20 +2,18 @@
 SetWorkingDir, %A_ScriptDir%
 CoordMode, Pixel, Screen
 
-
 ; Read settings from settings.ini
 IniRead, UserID, settings.ini, Settings, UserID
 IniRead, url, settings.ini, Settings, url
 IniRead, discordID, settings.ini, Settings, discordID
 IniRead, RobloxUsername, settings.ini, Settings, RobloxUsername
 
-
 nightColor := 0x000000
 webhook_color := 13684834
 
 DoubleClick(x, y) {
     MouseClick, left, x, y
-    Sleep, 50 ; Adjust sleep duration if needed
+    Sleep, 50 
     MouseClick, left, x, y
 }
 
@@ -28,17 +26,20 @@ CheckForNight(colorToCheck) {
     return color = colorToCheck
 }
 
-DetectLoading(loadingColor) {
-    ; Wait for the loading color to appear
+DetectLoading(loadingColor, timeout) {
+    startTime := A_TickCount
     loop {
         PixelGetColor, color, 458, 151, RGB
         if (color = loadingColor) {
             break
         }
+        if (A_TickCount - startTime >= timeout) {
+            return false ; Timeout reached
+        }
         Sleep, 100
     }
 
-    ; Wait for the loading color to disappear
+    startTime := A_TickCount
     loop {
         PixelGetColor, color, 458, 151, RGB
         if (color != loadingColor) {
@@ -46,6 +47,8 @@ DetectLoading(loadingColor) {
         }
         Sleep, 100
     }
+
+    return true ; Loading completed within the timeout
 }
 
 postdata =
@@ -106,8 +109,10 @@ F1::
             RunWait, taskkill /F /IM RobloxPlayerBeta.exe, , Hide
             Run, node "index.js"
         }
-        ; Call the DetectLoading function
-        DetectLoading(0x2257A8)
-        Sleep, 3000
+        if (DetectLoading(0x2257A8, 60000)) {
+            Sleep, 3000
+        } else {
+            continue
+        }
     }
 return
