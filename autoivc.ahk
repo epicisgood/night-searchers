@@ -3,6 +3,7 @@ IniRead, UserID, settings.ini, Settings, UserID
 IniRead, url, settings.ini, Settings, url
 IniRead, discordID, settings.ini, Settings, discordID
 IniRead, sleepDuration, settings.ini, Settings, sleepDuration
+IniRead, RobloxUsername, settings.ini, Settings, RobloxUsername
 
 CoordMode, Pixel, Screen
 
@@ -35,7 +36,7 @@ DetectLoading(colorToCheck) {
 postdata=
 (
 {
-  "content": "<@%discordID%> VICIOUS BEE DETECTED!!!",
+  "content": "<@%discordID%> %RobloxUsername% FOUND A Night time Server !!!",
   "embeds": [
     {
       "title": "Vicious bee detected!!",
@@ -46,17 +47,19 @@ postdata=
 }
 ) 
 
-; Create a GUI to update UserID, URL, Discord ID, and Sleep Duration
+; Create a GUI to update UserID, URL, Discord ID, Roblox Username, and Sleep Duration
 Gui, Add, Text, x10 y10 w80 h20, Roblox UserID:
 Gui, Add, Edit, vUserIDEdit x100 y10 w300 h20, %UserID%
 Gui, Add, Text, x10 y40 w80 h20, Webhook URL:
 Gui, Add, Edit, vURLEdit x100 y40 w300 h20, %url%
 Gui, Add, Text, x10 y70 w80 h20, Discord ID:
 Gui, Add, Edit, vDiscordIDEdit x100 y70 w300 h20, %discordID%
-Gui, Add, Text, x10 y100 w80 h20, Sleep Duration:
-Gui, Add, Edit, vSleepDurationEdit x100 y100 w300 h20, %sleepDuration%
-Gui, Add, Button, gSaveSettings x100 y130 w100 h30, Save
-Gui, Show, w420 h180, Settings
+Gui, Add, Text, x10 y100 w80 h20, Roblox Username:
+Gui, Add, Edit, vRobloxUsernameEdit x100 y100 w300 h20, %RobloxUsername%
+Gui, Add, Text, x10 y130 w80 h20, Sleep Duration:
+Gui, Add, Edit, vSleepDurationEdit x100 y130 w300 h20, %sleepDuration%
+Gui, Add, Button, gSaveSettings x100 y160 w100 h30, Save
+Gui, Show, w420 h220, Settings
 return
 
 SaveSettings:
@@ -64,10 +67,12 @@ SaveSettings:
     IniWrite, %UserIDEdit%, settings.ini, Settings, UserID
     IniWrite, %URLEdit%, settings.ini, Settings, url
     IniWrite, %DiscordIDEdit%, settings.ini, Settings, discordID
+    IniWrite, %RobloxUsernameEdit%, settings.ini, Settings, RobloxUsername
     IniWrite, %SleepDurationEdit%, settings.ini, Settings, sleepDuration
     UserID := UserIDEdit
     url := URLEdit
     discordID := DiscordIDEdit
+    RobloxUsername := RobloxUsernameEdit
     sleepDuration := SleepDurationEdit
     MsgBox, Settings saved!
 return
