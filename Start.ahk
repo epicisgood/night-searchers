@@ -58,7 +58,7 @@ postdata =
     "embeds": [
     {
         "title": "Vicious bee detected!!",
-        "description": "roblox://userID=%UserID%&joinAttemptOrigin=JoinUser \n https://www.roblox.com/users/%UserID%/profile",
+        "description": "https://www.roblox.com/home?followUserId=%UserID% \n https://www.roblox.com/users/%UserID%/profile",
         "color": 8280002
     }
     ]
