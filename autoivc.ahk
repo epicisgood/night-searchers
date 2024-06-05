@@ -10,6 +10,14 @@ nightColor := 0x000000
 loadingColor := 0x2257A8
 webhook_color := 13684834
 
+
+DoubleClick(x, y) {
+    MouseClick, left, x, y
+    Sleep, 50 ; Adjust sleep duration if needed
+    MouseClick, left, x, y
+}
+
+
 DragScroll() {
     MouseClickDrag, middle, 300, 302, 300, 300
 }
@@ -66,6 +74,7 @@ return
 
 F1::
     loop {
+        DoubleClick(458, 63)
         DragScroll()
         if CheckForNight(nightColor) {
             WebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
