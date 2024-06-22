@@ -157,14 +157,7 @@ F1:: {
             WebRequest.Open("POST", url, false)
             WebRequest.SetRequestHeader("Content-Type", "application/json")
             WebRequest.Send(postdata)
-
-            Result := MsgBox("Vicious bee detected! Do you want to continue?", "Continue?", "YesNo")
-            if (Result = "Yes") {
-                continue
-            }
-            if (result = "No") {
-                ExitApp
-            }
+            Sleep 5000
         }
     }
 }
