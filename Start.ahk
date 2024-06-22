@@ -8,6 +8,7 @@ CoordMode "Pixel", "Screen"
 
 global GameUrl := ""
 
+
 GetRobloxClientPos(hwnd?) {
     global windowX, windowY, windowWidth, windowHeight
     if !IsSet(hwnd)
@@ -46,11 +47,27 @@ ActivateRoblox() {
 }
 
 ; Read settings from settings.ini
-UserID := IniRead("settings.ini", "Settings", "UserID")
 url := IniRead("settings.ini", "Settings", "url")
 discordID := IniRead("settings.ini", "Settings", "discordID")
 RobloxUsername := IniRead("settings.ini", "Settings", "RobloxUsername")
 
+
+postdata :=
+    (
+        '
+{
+"content": "<@' discordID '> ' RobloxUsername ' FOUND A Night time Server !!!",
+"embeds": [{
+"title": "Vicious bee detected!!",
+"description": "{GameUrl}", 
+"color": "14052794"
+}]
+}
+'
+    )
+
+
+    
 
 DoubleClick(x, y) {
     MouseClick("left", x, y)
@@ -101,8 +118,6 @@ DetectLoading(loadingColor, timeout) {
 
 
 MyGui := Gui()
-MyGui.AddText("x10 y10 w80 h20", "Roblox UserID:")
-UserIDEdit := MyGui.AddEdit("x100 y10 w300 h20", UserID)
 MyGui.AddText("x10 y40 w80 h20", "Webhook URL:")
 URLEdit := MyGui.AddEdit("x100 y40 w300 h20", url)
 MyGui.AddText("x10 y70 w80 h20", "Discord ID:")
@@ -115,11 +130,9 @@ MyGui.Show("w420 h200")
 
 SaveSettings(*) {
     MyGui.Submit("NoHide")
-    IniWrite(UserIDEdit.Value, "settings.ini", "Settings", "UserID")
     IniWrite(URLEdit.Value, "settings.ini", "Settings", "url")
     IniWrite(DiscordIDEdit.Value, "settings.ini", "Settings", "discordID")
     IniWrite(RobloxUsernameEdit.Value, "settings.ini", "Settings", "RobloxUsername")
-    UserID := UserIDEdit.Value
     url := URLEdit.Value
     discordID := DiscordIDEdit.Value
     RobloxUsername := RobloxUsernameEdit.Value
@@ -133,31 +146,21 @@ F1:: {
         if (DetectLoading(0x2257A8, 40000)) {
             Sleep 3000
         }
-
         DoubleClick(458, 63)
         Send("{PgDn}")
         Send("{PgDn}")
         ZoomOut()
-        nightColor := 0x000000
+        nightColor := CheckForNight()
         if (nightColor == 0x000000 || nightColor == 0x404040) {
-            postdata :=
-                (
-                    '
-{
-    "content": "<@' discordID '> ' RobloxUsername ' FOUND A Night time Server !!!",
-    "embeds": [{
-        "title": "Vicious bee detected!!",
-        "description": "' GameUrl '",
-        "color": "14052794"
-    }]
-}
-'
-                )
+            postdatasend := StrReplace(postdata, "{GameUrl}", GameUrl)
             WebRequest := ComObject("WinHttp.WinHttpRequest.5.1")
             WebRequest.Open("POST", url, false)
             WebRequest.SetRequestHeader("Content-Type", "application/json")
-            WebRequest.Send(postdata)
+            WebRequest.Send(postdatasend)
             Sleep 5000
+        }
+        else {
+            Sleep 100
         }
     }
 }
