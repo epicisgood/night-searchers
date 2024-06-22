@@ -49,20 +49,13 @@ ActivateRoblox() {
 ; Read settings from settings.ini
 url := IniRead("settings.ini", "Settings", "url")
 discordID := IniRead("settings.ini", "Settings", "discordID")
-RobloxUsername := IniRead("settings.ini", "Settings", "RobloxUsername")
 
 
 postdata :=
     (
         '
 {
-"content": "<@' discordID '> ' RobloxUsername ' FOUND A Night time Server !!!",
-"embeds": [{
-"title": "Vicious bee detected!!",
-"description": "{GameUrl}", 
-"color": "14052794"
-}]
-}
+"content": "<@' discordID '> {GameUrl}"
 '
     )
 
@@ -123,7 +116,6 @@ URLEdit := MyGui.AddEdit("x100 y40 w300 h20", url)
 MyGui.AddText("x10 y70 w80 h20", "Discord ID:")
 DiscordIDEdit := MyGui.AddEdit("x100 y70 w300 h20", discordID)
 MyGui.AddText("x10 y100 w80 h35", "Roblox Username:")
-RobloxUsernameEdit := MyGui.AddEdit("x100 y100 w300 h20", RobloxUsername)
 button := MyGui.AddButton("Default x100 y130 w100 h30", "Save")
 button.OnEvent('click', SaveSettings)
 MyGui.Show("w420 h200")
@@ -132,10 +124,8 @@ SaveSettings(*) {
     MyGui.Submit("NoHide")
     IniWrite(URLEdit.Value, "settings.ini", "Settings", "url")
     IniWrite(DiscordIDEdit.Value, "settings.ini", "Settings", "discordID")
-    IniWrite(RobloxUsernameEdit.Value, "settings.ini", "Settings", "RobloxUsername")
     url := URLEdit.Value
     discordID := DiscordIDEdit.Value
-    RobloxUsername := RobloxUsernameEdit.Value
     MsgBox "Settings saved!"
 }
 
