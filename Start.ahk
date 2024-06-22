@@ -1,118 +1,170 @@
-﻿#SingleInstance, Force
-SetWorkingDir, %A_ScriptDir%
-CoordMode, Pixel, Screen
+﻿#Requires AutoHotkey v2.0
+#SingleInstance Force
+#Include %A_ScriptDir%\lib\json.ahk
+#Include %A_ScriptDir%\joinserver.ahk
+
+SetWorkingDir A_ScriptDir
+CoordMode "Pixel", "Screen"
+
+GetRobloxClientPos(hwnd?) {
+    global windowX, windowY, windowWidth, windowHeight
+    if !IsSet(hwnd)
+        hwnd := GetRobloxHWND()
+
+    try
+        WinGetClientPos &windowX, &windowY, &windowWidth, &windowHeight, "ahk_id " hwnd
+    catch TargetError
+        return windowX := windowY := windowWidth := windowHeight := 0
+    else
+        return 1
+}
+
+GetRobloxHWND() {
+    if (hwnd := WinExist("Roblox ahk_exe RobloxPlayerBeta.exe"))
+        return hwnd
+    else if (WinExist("Roblox ahk_exe ApplicationFrameHost.exe"))
+    {
+        try
+            hwnd := ControlGetHwnd("ApplicationFrameInputSinkWindow1")
+        catch TargetError
+            hwnd := 0
+        return hwnd
+    }
+    else
+        return 0
+}
+
+ActivateRoblox() {
+    try
+        WinActivate "Roblox"
+    catch
+        return 0
+    else
+        return 1
+}
 
 ; Read settings from settings.ini
-IniRead, UserID, settings.ini, Settings, UserID
-IniRead, url, settings.ini, Settings, url
-IniRead, discordID, settings.ini, Settings, discordID
-IniRead, RobloxUsername, settings.ini, Settings, RobloxUsername
+UserID := IniRead("settings.ini", "Settings", "UserID")
+url := IniRead("settings.ini", "Settings", "url")
+discordID := IniRead("settings.ini", "Settings", "discordID")
+RobloxUsername := IniRead("settings.ini", "Settings", "RobloxUsername")
 
-nightColor := 0x000000
-webhook_color := 13684834
 
 DoubleClick(x, y) {
-    MouseClick, left, x, y
-    Sleep, 50 
-    MouseClick, left, x, y
+    MouseClick("left", x, y)
+    Sleep 50
+    MouseClick("left", x, y)
 }
 
-DragScroll() {
-    MouseClickDrag, middle, 300, 302, 300, 300
+
+ZoomOut() {
+    Loop 5 {
+        Send "{o down}"
+        Sleep 100
+        Send "{o up}"
+    }
 }
 
-CheckForNight(colorToCheck) {
-    PixelGetColor, color, 458, 151
-    return color = colorToCheck
+
+CheckForNight() {
+    hwnd := GetRobloxHWND()
+    GetRobloxClientPos(hwnd)
+    centerX := windowX + (windowWidth // 2 - 200)
+    MouseMove centerX, 100
+    color := PixelGetColor(centerX, 150)
+    return color
 }
 
 DetectLoading(loadingColor, timeout) {
     startTime := A_TickCount
-    loop {
-        PixelGetColor, color, 458, 151, RGB
-        if (color = loadingColor) {
+    Loop {
+        color := PixelGetColor(458, 151)
+        if (color = loadingColor)
             break
-        }
-        if (A_TickCount - startTime >= timeout) {
+        if (A_TickCount - startTime >= timeout)
             return false ; Timeout reached
-        }
-        Sleep, 100
+        Sleep 100
     }
 
     startTime := A_TickCount
-    loop {
-        PixelGetColor, color, 458, 151, RGB
-        if (color != loadingColor) {
+    Loop {
+        color := PixelGetColor(458, 151)
+        if (color != loadingColor)
             break
-        }
-        Sleep, 100
+        Sleep 100
     }
 
     return true ; Loading completed within the timeout
 }
 
-postdata =
+postdata := 
 (
+    '
 {
-    "content": "<@%discordID%> %RobloxUsername% FOUND A Night time Server !!!",
-    "embeds": [
-    {
+    "content": "<@' discordID '> ' RobloxUsername ' FOUND A Night time Server !!!",
+    "embeds": [{
         "title": "Vicious bee detected!!",
-        "description": "https://www.roblox.com/home?followUserId=%UserID% \n https://www.roblox.com/users/%UserID%/profile",
-        "color": 8280002
-    }
-    ]
+        "description": "https://www.roblox.com/home?followUserId=' UserID ' \n https://www.roblox.com/users/' UserID '/profile",
+        "color": "14052794"
+    }]
 }
-) 
+'
+)
 
-; Create a GUI to update UserID, URL, Discord ID, Roblox Username
-Gui, Add, Text, x10 y10 w80 h20, Roblox UserID:
-Gui, Add, Edit, vUserIDEdit x100 y10 w300 h20, %UserID%
-Gui, Add, Text, x10 y40 w80 h20, Webhook URL:
-Gui, Add, Edit, vURLEdit x100 y40 w300 h20, %url%
-Gui, Add, Text, x10 y70 w80 h20, Discord ID:
-Gui, Add, Edit, vDiscordIDEdit x100 y70 w300 h20, %discordID%
-Gui, Add, Text, x10 y100 w80 h20, Roblox Username:
-Gui, Add, Edit, vRobloxUsernameEdit x100 y100 w300 h20, %RobloxUsername%
-Gui, Add, Button, gSaveSettings x100 y130 w100 h30, Save
-Gui, Show, w420 h180, Settings
-return
+MyGui := Gui()
+MyGui.AddText("x10 y10 w80 h20", "Roblox UserID:")
+UserIDEdit := MyGui.AddEdit("x100 y10 w300 h20", UserID)
+MyGui.AddText("x10 y40 w80 h20", "Webhook URL:")
+URLEdit := MyGui.AddEdit("x100 y40 w300 h20", url)
+MyGui.AddText("x10 y70 w80 h20", "Discord ID:")
+DiscordIDEdit := MyGui.AddEdit("x100 y70 w300 h20", discordID)
+MyGui.AddText("x10 y100 w80 h35", "Roblox Username:")
+RobloxUsernameEdit := MyGui.AddEdit("x100 y100 w300 h20", RobloxUsername)
+button := MyGui.AddButton("Default x100 y130 w100 h30", "Save")
+button.OnEvent('click', SaveSettings)
+MyGui.Show("w420 h200")
 
-SaveSettings:
-    Gui, Submit, NoHide
-    IniWrite, %UserIDEdit%, settings.ini, Settings, UserID
-    IniWrite, %URLEdit%, settings.ini, Settings, url
-    IniWrite, %DiscordIDEdit%, settings.ini, Settings, discordID
-    IniWrite, %RobloxUsernameEdit%, settings.ini, Settings, RobloxUsername
-    UserID := UserIDEdit
-    url := URLEdit
-    discordID := DiscordIDEdit
-    RobloxUsername := RobloxUsernameEdit
-    MsgBox, Settings saved!
-return
+SaveSettings(*) {
+    MyGui.Submit("NoHide")
+    IniWrite(UserIDEdit.Value, "settings.ini", "Settings", "UserID")
+    IniWrite(URLEdit.Value, "settings.ini", "Settings", "url")
+    IniWrite(DiscordIDEdit.Value, "settings.ini", "Settings", "discordID")
+    IniWrite(RobloxUsernameEdit.Value, "settings.ini", "Settings", "RobloxUsername")
+    UserID := UserIDEdit.Value
+    url := URLEdit.Value
+    discordID := DiscordIDEdit.Value
+    RobloxUsername := RobloxUsernameEdit.Value
+    MsgBox "Settings saved!"
+}
 
-F1::
-    loop {
+F1:: {
+    Loop {
+        RunWait("taskkill /F /IM RobloxPlayerBeta.exe", , "Hide")
+        joinrandomserver()
+        if (DetectLoading(0x2257A8, 40000)) {
+            Sleep 3000
+        }
+
         DoubleClick(458, 63)
-        DragScroll()
-        if CheckForNight(nightColor) or CheckForNight(0x404040) {
-            WebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        Send("{PgDn}")
+        Send("{PgDn}")
+        ZoomOut()
+        nightColor := CheckForNight()
+        if (nightColor == 0x000000 || nightColor == 0x404040) {
+            WebRequest := ComObject("WinHttp.WinHttpRequest.5.1")
             WebRequest.Open("POST", url, false)
             WebRequest.SetRequestHeader("Content-Type", "application/json")
             WebRequest.Send(postdata)
-            MsgBox, 4, Continue?, Vicious bee detected! Do you want to continue?
-            IfMsgBox, No
-            {
+
+            Result := MsgBox("Vicious bee detected! Do you want to continue?", "Continue?", "YesNo")
+            if (Result = "Yes") {
+                continue
+            }
+            if (result = "No") {
                 ExitApp
             }
-        } else {
-            RunWait, taskkill /F /IM RobloxPlayerBeta.exe, , Hide
-            Run, node "index.js"
-        }
-        if (DetectLoading(0x2257A8, 60000)) {
-            Sleep, 3000
-        } else {
-            continue
         }
     }
-return
+}
+
+
