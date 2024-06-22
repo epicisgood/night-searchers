@@ -80,11 +80,12 @@ CheckForNight() {
         Sleep 300
         MouseClick("left", FoundX1, FoundY1, 3)
         Sleep 300
-        MouseClick("left", FoundX1, FoundY1, 3)
+        MouseClick("right", FoundX1, FoundY1, 3)
     }
     Sleep 500
     centerX := windowX + (windowWidth // 2) 
     MouseMove centerX, 100
+    MouseClick("left", centerX, 100, 3)
     color := PixelGetColor(centerX, 100)
     return color
 }
