@@ -61,11 +61,7 @@ postdata :=
     )
 
 
-DoubleClick(x, y) {
-    MouseClick("left", x, y)
-    Sleep 50
-    MouseClick("left", x, y)
-}
+
 
 
 ZoomOut() {
@@ -82,7 +78,8 @@ CheckForNight() {
     GetRobloxClientPos(hwnd)
     centerX := windowX + (windowWidth // 2 - 200)
     MouseMove centerX, 100
-    color := PixelGetColor(centerX, 150)
+    MouseClick("Left", centerX, 100, 4)
+    color := PixelGetColor(centerX, 100)
     return color
 }
 
@@ -134,7 +131,6 @@ F1:: {
         if (DetectLoading(0x2257A8, 40000)) {
             Sleep 3000
         }
-        DoubleClick(458, 63)
         Send("{PgDn}")
         Send("{PgDn}")
         ZoomOut()
