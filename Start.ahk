@@ -78,6 +78,12 @@ CheckForNight() {
     GetRobloxClientPos(hwnd)
     if ImageSearch(&FoundX1, &FoundY1, windowX, windowY, windowX + windowWidth, windowY + windowHeight, "*32 " . "RedX.png") {
         Sleep 300
+        MouseMove(FoundX1, FoundY1)
+        MouseClick("left", FoundX1, FoundY1, 3)
+        MouseClick("left", FoundX1, FoundY1, 3)
+        MouseClick("left", FoundX1, FoundY1, 3)
+        MouseClick("left", FoundX1, FoundY1, 3)
+        MouseClick("left", FoundX1, FoundY1, 3)
         MouseClick("left", FoundX1, FoundY1, 3)
         Sleep 300
         MouseClick("right", FoundX1, FoundY1, 3)
