@@ -76,9 +76,15 @@ ZoomOut() {
 CheckForNight() {
     hwnd := GetRobloxHWND()
     GetRobloxClientPos(hwnd)
-    centerX := windowX + (windowWidth // 2 - 200)
+    if ImageSearch(&FoundX1, &FoundY1, windowX, windowY, windowX + windowWidth, windowY + windowHeight, "*32 " . "RedX.png") {
+        Sleep 300
+        MouseClick("left", FoundX1, FoundY1, 3)
+        Sleep 300
+        MouseClick("left", FoundX1, FoundY1, 3)
+    }
+    Sleep 500
+    centerX := windowX + (windowWidth // 2) 
     MouseMove centerX, 100
-    MouseClick("Left", centerX, 100, 4)
     color := PixelGetColor(centerX, 100)
     return color
 }
