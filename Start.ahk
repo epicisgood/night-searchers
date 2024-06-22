@@ -6,6 +6,8 @@
 SetWorkingDir A_ScriptDir
 CoordMode "Pixel", "Screen"
 
+global GameUrl := ""
+
 GetRobloxClientPos(hwnd?) {
     global windowX, windowY, windowWidth, windowHeight
     if !IsSet(hwnd)
@@ -97,19 +99,6 @@ DetectLoading(loadingColor, timeout) {
     return true ; Loading completed within the timeout
 }
 
-postdata := 
-(
-    '
-{
-    "content": "<@' discordID '> ' RobloxUsername ' FOUND A Night time Server !!!",
-    "embeds": [{
-        "title": "Vicious bee detected!!",
-        "description": "https://www.roblox.com/home?followUserId=' UserID ' \n https://www.roblox.com/users/' UserID '/profile",
-        "color": "14052794"
-    }]
-}
-'
-)
 
 MyGui := Gui()
 MyGui.AddText("x10 y10 w80 h20", "Roblox UserID:")
@@ -140,7 +129,7 @@ SaveSettings(*) {
 F1:: {
     Loop {
         RunWait("taskkill /F /IM RobloxPlayerBeta.exe", , "Hide")
-        joinrandomserver()
+        GameUrl := joinrandomserver()
         if (DetectLoading(0x2257A8, 40000)) {
             Sleep 3000
         }
@@ -149,8 +138,21 @@ F1:: {
         Send("{PgDn}")
         Send("{PgDn}")
         ZoomOut()
-        nightColor := CheckForNight()
+        nightColor := 0x000000
         if (nightColor == 0x000000 || nightColor == 0x404040) {
+            postdata :=
+                (
+                    '
+{
+    "content": "<@' discordID '> ' RobloxUsername ' FOUND A Night time Server !!!",
+    "embeds": [{
+        "title": "Vicious bee detected!!",
+        "description": "' GameUrl '",
+        "color": "14052794"
+    }]
+}
+'
+                )
             WebRequest := ComObject("WinHttp.WinHttpRequest.5.1")
             WebRequest.Open("POST", url, false)
             WebRequest.SetRequestHeader("Content-Type", "application/json")
@@ -166,5 +168,3 @@ F1:: {
         }
     }
 }
-
-
