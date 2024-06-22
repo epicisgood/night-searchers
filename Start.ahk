@@ -56,11 +56,10 @@ postdata :=
         '
 {
 "content": "<@' discordID '> {GameUrl}"
+    }
 '
     )
 
-
-    
 
 DoubleClick(x, y) {
     MouseClick("left", x, y)
@@ -115,7 +114,6 @@ MyGui.AddText("x10 y40 w80 h20", "Webhook URL:")
 URLEdit := MyGui.AddEdit("x100 y40 w300 h20", url)
 MyGui.AddText("x10 y70 w80 h20", "Discord ID:")
 DiscordIDEdit := MyGui.AddEdit("x100 y70 w300 h20", discordID)
-MyGui.AddText("x10 y100 w80 h35", "Roblox Username:")
 button := MyGui.AddButton("Default x100 y130 w100 h30", "Save")
 button.OnEvent('click', SaveSettings)
 MyGui.Show("w420 h200")
