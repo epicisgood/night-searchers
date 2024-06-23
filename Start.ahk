@@ -5,6 +5,10 @@
 
 SetWorkingDir A_ScriptDir
 CoordMode "Pixel", "Screen"
+CoordMode "Mouse", "Screen"
+
+
+SetKeyDelay 50, 100
 
 global GameUrl := ""
 
@@ -74,24 +78,17 @@ ZoomOut() {
 
 
 CheckForNight() {
+    ActivateRoblox()
     hwnd := GetRobloxHWND()
     GetRobloxClientPos(hwnd)
-    if ImageSearch(&FoundX1, &FoundY1, windowX, windowY, windowX + windowWidth, windowY + windowHeight, "*32 " . "RedX.png") {
-        Sleep 300
-        MouseMove(FoundX1, FoundY1)
-        MouseClick("left", FoundX1, FoundY1, 3)
-        MouseClick("left", FoundX1, FoundY1, 3)
-        MouseClick("left", FoundX1, FoundY1, 3)
-        MouseClick("left", FoundX1, FoundY1, 3)
-        MouseClick("left", FoundX1, FoundY1, 3)
-        MouseClick("left", FoundX1, FoundY1, 3)
-        Sleep 300
-        MouseClick("right", FoundX1, FoundY1, 3)
+    if ImageSearch(&FoundX1, &FoundY1, windowX, windowY, windowX + windowWidth, windowY + windowHeight, "*32 " . "close.png") {
+        mousemove(FoundX1, FoundY1)
+        click
+        mousemove(FoundX1+1, FoundY1+1)
+        click
     }
     Sleep 500
     centerX := windowX + (windowWidth // 2) 
-    MouseMove centerX, 100
-    MouseClick("left", centerX, 100, 3)
     color := PixelGetColor(centerX, 100)
     return color
 }
