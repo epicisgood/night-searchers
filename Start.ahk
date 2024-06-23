@@ -65,9 +65,6 @@ postdata :=
     )
 
 
-
-
-
 ZoomOut() {
     Loop 5 {
         Send "{o down}"
@@ -81,14 +78,22 @@ CheckForNight() {
     ActivateRoblox()
     hwnd := GetRobloxHWND()
     GetRobloxClientPos(hwnd)
-    if ImageSearch(&FoundX1, &FoundY1, windowX, windowY, windowX + windowWidth, windowY + windowHeight, "*32 " . "close.png") {
-        mousemove(FoundX1, FoundY1)
+    MouseMove(40, 300)
+    click
+    MouseMove(40, 300)
+    click
+    MouseMove(149, 108)
+    click
+    MouseMove(150, 100)
+    click
+    imagepath := "close.png"
+    if ImageSearch(&FoundX, &FoundY, windowX, windowY, windowX + windowWidth, windowY + windowHeight, "*32 " . ImagePath) {
+        MouseMove(foundX,FoundY)
         click
-        mousemove(FoundX1+1, FoundY1+1)
-        click
+    } else {
+        Sleep 100
     }
-    Sleep 500
-    centerX := windowX + (windowWidth // 2) 
+    centerX := windowX + (windowWidth // 2)
     color := PixelGetColor(centerX, 100)
     return color
 }
@@ -145,7 +150,7 @@ F1:: {
         Send("{PgDn}")
         ZoomOut()
         nightColor := CheckForNight()
-        if (nightColor == 0x000000 || nightColor == 0x404040) {
+        if (nightColor == 0x000000 || nightColor == 0x404040 || nightColor == 0x101010) {
             postdatasend := StrReplace(postdata, "{GameUrl}", GameUrl)
             WebRequest := ComObject("WinHttp.WinHttpRequest.5.1")
             WebRequest.Open("POST", url, false)
